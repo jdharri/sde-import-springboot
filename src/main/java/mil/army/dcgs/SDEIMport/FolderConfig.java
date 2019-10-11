@@ -1,5 +1,5 @@
 
-package mil.army.dcgs.SDEIMport.entities;
+package mil.army.dcgs.SDEIMport;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
