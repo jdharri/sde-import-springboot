@@ -1,5 +1,6 @@
 package mil.army.dcgs.SDEIMport;
 
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -24,5 +25,12 @@ private static final Logger log = LoggerFactory.getLogger(SdeiMportApplication.c
                 sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
             };
         }
+        
+//        @PostConstruct
+//        private void init(){
+//            System.out.println("**** init()");
+//            Importer importer = new Importer();
+//            importer.watchFolders();
+//        }
 
 }

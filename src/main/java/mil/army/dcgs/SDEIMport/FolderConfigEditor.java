@@ -8,8 +8,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+import java.io.File;
+import java.nio.file.Paths;
 import javax.swing.plaf.basic.BasicMenuUI;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         this.repo = repository;
         add(directory, sdePassword, sdeDatabase, tableName, actions);
         binder.bindInstanceFields(this);
+//        directory.setRequired(true);
+//        binder.forField(directory)
+//                .withValidator((t) -> validateFilePath(t), "not a valid path");
         setSpacing(true);
         save.getElement().getThemeList().add("primary");
         delete.getElement().getThemeList().add("error");
@@ -56,7 +62,14 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         setVisible(false);
 
     }
-
+    private boolean validateFilePath(String path){
+        
+        File folder = new File(path);
+        if(!folder.exists()){
+            return false;
+        }
+        return true;
+    }
     void save() {
         repo.save(config);
         changeHandler.onChange();

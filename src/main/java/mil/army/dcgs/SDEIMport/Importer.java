@@ -3,6 +3,7 @@ package mil.army.dcgs.SDEIMport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -29,12 +31,14 @@ public class Importer {
     private FolderConfigRepository repo;
 
     ConcurrentLinkedQueue fileQueue;
-
-    public void folderWatcher() {
-
-        List<FolderConfig> configs = repo.findAll();
+private List<FolderConfig> configs;
+    @PostConstruct
+    public void watchFolders() {
+        System.out.println("**** start watching folders");
+        configs = repo.findAll();
 
         configs.forEach(c -> {
+            System.out.println("*** config directory: " + c.getDirectory());
             insertIntoSDE(c);
         });
     }
@@ -60,7 +64,7 @@ public class Importer {
                      * <server_name>] [-D <database_name>] -u <DB_user_name>
                      * [-p <DB_user_password>]
                      */
-                    fileQueue.add(event.context());
+//                    fileQueue.add(event.context());
 
                     List<String> commands = new ArrayList<>();
                     commands.add("cmd.exe");
@@ -91,6 +95,7 @@ public class Importer {
                     final InputStream expout = p.getInputStream();
                     final int exitcode = p.waitFor();
                     assert exitcode == 0;
+                    Files.delete(Paths.get(event.context().toString()));
                 }
             }
             key.reset();
