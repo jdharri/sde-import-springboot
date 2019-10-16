@@ -30,10 +30,10 @@ public class MainView extends VerticalLayout {
 
     private final Button addNewBtn;
 
-    public MainView(FolderConfigRepository repo, FolderConfigEditor editor) {
+    public MainView(FolderConfigRepository repo, FolderConfigEditor folderEditor) {
 
         this.repo = repo;
-        this.editor = editor;
+        this.editor = folderEditor;
         this.grid = new Grid<>(FolderConfig.class);
         this.filter = new TextField();
         this.addNewBtn = new Button("New Configuration", VaadinIcon.PLUS.create());
@@ -54,6 +54,17 @@ public class MainView extends VerticalLayout {
             editor.editConfig(e.getValue());
         });
 
+		// Instantiate and edit new Customer the new button is clicked
+		addNewBtn.addClickListener(e -> editor.editConfig(new FolderConfig("", "", "", "")));
+
+		// Listen changes made by the editor, refresh data from backend
+		editor.setChangeHandler(() -> {
+			editor.setVisible(false);
+			listConfigs(filter.getValue());
+		});
+
+		// Initialize listing
+		listConfigs(null);
     }
 
     void listConfigs(String filterText) {

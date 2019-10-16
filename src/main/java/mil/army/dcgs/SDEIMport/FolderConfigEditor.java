@@ -1,6 +1,5 @@
 package mil.army.dcgs.SDEIMport;
 
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
@@ -27,8 +26,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     private final FolderConfigRepository repo;
 
     private FolderConfig config;
-    Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
-    private ChangeHandler changeHandler;
+
     TextField directory = new TextField("directory");
     TextField sdePassword = new TextField("SDE Password");
     TextField sdeDatabase = new TextField("SDE Database");
@@ -37,11 +35,14 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     Button save = new Button("Save", VaadinIcon.CHECK.create());
     Button cancel = new Button("Cancel");
     Button delete = new Button("Delete", VaadinIcon.TRASH.create());
+    HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
+    Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
+    private ChangeHandler changeHandler;
 
     @Autowired
     public FolderConfigEditor(FolderConfigRepository repository) {
         this.repo = repository;
-        add(directory, sdePassword, sdeDatabase, tableName);
+        add(directory, sdePassword, sdeDatabase, tableName, actions);
         binder.bindInstanceFields(this);
         setSpacing(true);
         save.getElement().getThemeList().add("primary");
@@ -55,6 +56,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         setVisible(false);
 
     }
+
     void save() {
         repo.save(config);
         changeHandler.onChange();

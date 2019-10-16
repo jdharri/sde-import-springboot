@@ -54,6 +54,9 @@ public class FolderConfig {
         this.tableName = tableName;
     }
 
+    public FolderConfig() {
+    }
+
     public Long getId() {
         return id;
     }
