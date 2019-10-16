@@ -23,46 +23,41 @@ import com.vaadin.flow.router.Route;
  */
 @Route
 public class MainView extends VerticalLayout {
-    
+
     private final FolderConfigRepository repo;
-    
+
     private final FolderConfigEditor editor;
-    
+    private final SystemConfigEditor sysConfigEditor;
+
     final Grid<FolderConfig> grid;
     final TextField filter;
-    
+
     private final Button addNewBtn;
     private final Button sysConfigBtn;
-    
-    public MainView(FolderConfigRepository repo, FolderConfigEditor folderEditor) {
-        
+
+    public MainView(FolderConfigRepository repo, FolderConfigEditor folderEditor, SystemConfigEditor systemEditor) {
+
         this.repo = repo;
         this.editor = folderEditor;
+        this.sysConfigEditor = systemEditor;
         this.grid = new Grid<>(FolderConfig.class);
         this.filter = new TextField();
         this.addNewBtn = new Button("New Configuration", VaadinIcon.PLUS.create());
         this.sysConfigBtn = new Button("System Configuration", VaadinIcon.COG.create());
-        
-        Dialog dialog = new Dialog();
-        TextField sdeImportExePath = new TextField();
-        sdeImportExePath.setLabel("path to sdeimport.exe");
-        dialog.add(sdeImportExePath);
-        dialog.add(new Label("Close me with the esc-key or an outside click"));
-        dialog.setWidth("400px");
-        dialog.setHeight("150px");
-        sysConfigBtn.addClickListener(event -> dialog.open());
+        sysConfigBtn.addClickListener(e -> systemEditor.editConfig());
+
         HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn, sysConfigBtn);
         add(actions, grid, editor);
-        
+
         grid.setHeight("200px");
         grid.setColumns("id", "directory", "tableName", "sdeDatabase", "sdePassword");
         grid.getColumnByKey("id").setWidth("50px").setFlexGrow(0);
-        
+
         filter.setPlaceholder("Filter by directory");
-        
+
         filter.setValueChangeMode(ValueChangeMode.EAGER);
         filter.addValueChangeListener(e -> listConfigs(e.getValue()));
-        
+
         grid.asSingleSelect().addValueChangeListener(e -> {
             editor.editConfig(e.getValue());
         });
@@ -79,10 +74,10 @@ public class MainView extends VerticalLayout {
         // Initialize listing
         listConfigs(null);
     }
-    
+
     void listConfigs(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            
+
             grid.setItems(repo.findAll());
         } else {
             grid.setItems(repo.findByDirectoryStartsWithIgnoreCase(filterText));

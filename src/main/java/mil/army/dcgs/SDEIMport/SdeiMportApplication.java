@@ -17,10 +17,11 @@ private static final Logger log = LoggerFactory.getLogger(SdeiMportApplication.c
 	}
         
         @Bean
-        public CommandLineRunner loadData(FolderConfigRepository repo){
+        public CommandLineRunner loadData(FolderConfigRepository repo, SystemConfigRepository sysRepo){
             return (args) -> {
                 repo.save(new FolderConfig("directory", "sdePassword", "sdeDatabase", "tableName"));
                 repo.save(new FolderConfig("directory2", "sdePassword2", "sdeDatabase2", "tableName2"));
+                sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
             };
         }
 
