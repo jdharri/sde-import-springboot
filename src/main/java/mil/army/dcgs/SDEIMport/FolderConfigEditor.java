@@ -41,6 +41,8 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
     Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
     private ChangeHandler changeHandler;
+    @Autowired
+    Importer importer;
 
     @Autowired
     public FolderConfigEditor(FolderConfigRepository repository) {
@@ -72,6 +74,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     }
     void save() {
         repo.save(config);
+        importer.insertIntoSDE(config);
         changeHandler.onChange();
     }
 
