@@ -1,5 +1,6 @@
 package mil.army.dcgs.SDEIMport;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystems;
@@ -19,7 +20,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import java.util.concurrent.CompletableFuture;
 /**
  *
  * @author jdhar
@@ -27,28 +28,44 @@ import org.springframework.stereotype.Service;
 @Service
 public class Importer {
 
-    @Autowired
     private FolderConfigRepository repo;
+    private SystemConfigRepository sysRepo;
 
     ConcurrentLinkedQueue fileQueue;
-private List<FolderConfig> configs;
+    private List<FolderConfig> configs;
+
+    @Autowired
+    public Importer(FolderConfigRepository repo, SystemConfigRepository systemRepo) {
+        this.repo = repo;
+        this.sysRepo = systemRepo;
+    }
+
     @PostConstruct
+    @Async
     public void watchFolders() {
+//         if (sysRepo.findAll().size() < 1) {
+//                sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
+//            }
         System.out.println("**** start watching folders");
         configs = repo.findAll();
-
+        System.out.println(configs.size() + " configs found");
         configs.forEach(c -> {
             System.out.println("*** config directory: " + c.getDirectory());
+            //   if (Files.exists(Paths.get(c.getDirectory()))) return;
             insertIntoSDE(c);
+
         });
     }
 
     @Async
     public void insertIntoSDE(FolderConfig c) {
         try {
+//            if(sysRepo.findAll().size()<1)return;
+            final String pathToExe = sysRepo.findAll().get(0).getPathToExe();
             WatchService watchService = FileSystems.getDefault().newWatchService();
 
             Path path = Paths.get(c.getDirectory());
+            System.out.println("***register watch service for: " + path);
             path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
             WatchKey key;
             while ((key = watchService.take()) != null) {
@@ -67,7 +84,7 @@ private List<FolderConfig> configs;
 //                    fileQueue.add(event.context());
 
                     List<String> commands = new ArrayList<>();
-                    commands.add("cmd.exe");
+                    commands.add(pathToExe);
                     commands.add("/c");
                     commands.add("dir");
                     commands.add("-o");
@@ -86,23 +103,25 @@ private List<FolderConfig> configs;
                     commands.add(c.getSdePassword());
                     commands.add("-i");
                     commands.add(c.getSdePort());
-                    if (c.getKeyFields().length() > 0) {
+                    if (null != c.getKeyFields()) {
                         commands.add("-K");
                         commands.add(c.getKeyFields());
                     }
                     ProcessBuilder pb = new ProcessBuilder(commands);
+                    System.out.println("*** command: "+commands.toString().replace(","," "));
+                    pb.redirectErrorStream(true);
                     final Process p = pb.start();
-                    final InputStream expout = p.getInputStream();
+
                     final int exitcode = p.waitFor();
                     assert exitcode == 0;
-                    Files.delete(Paths.get(event.context().toString()));
+                    Files.delete(Paths.get(c.getDirectory().concat(File.pathSeparator).concat(event.context().toString())));
                 }
             }
             key.reset();
         } catch (IOException | InterruptedException ex) {
+            System.out.println("*** error in importer: " + ex);
             Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 //    public void insertIntoSDE(){
 //     try {

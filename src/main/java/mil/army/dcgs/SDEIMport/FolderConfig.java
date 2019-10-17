@@ -47,12 +47,17 @@ public class FolderConfig {
 //    public String USER_SDE = "userSDE";
 //   private String dbTable;
 
-    public FolderConfig(String directory, String sdePassword, String sdeDatabase, String tableName) {
+    public FolderConfig(String directory, String sdePassword, String sdeDatabase, String sdeHost, String sdePort, String sdeUsername, String tableName) {
         this.directory = directory;
         this.sdePassword = sdePassword;
         this.sdeDatabase = sdeDatabase;
+        this.sdeHost = sdeHost;
+        this.sdePort = sdePort;
+        this.sdeUsername = sdeUsername;
         this.tableName = tableName;
     }
+
+   
 
     public FolderConfig() {
     }
@@ -151,6 +156,11 @@ public class FolderConfig {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    @Override
+    public String toString() {
+        return "FolderConfig{" + "id=" + id + ", directory=" + directory + ", deleteFiles=" + deleteFiles + ", keyFields=" + keyFields + ", layerName=" + layerName + ", mainIdColumn=" + mainIdColumn + ", sdePassword=" + sdePassword + ", sdeDatabase=" + sdeDatabase + ", sdeHost=" + sdeHost + ", sdePort=" + sdePort + ", sdeUsername=" + sdeUsername + ", tableName=" + tableName + '}';
     }
    
    

@@ -1,6 +1,7 @@
 package mil.army.dcgs.SDEIMport;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.applayout.AppLayout;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
@@ -36,21 +37,23 @@ public class MainView extends VerticalLayout {
     private final Button sysConfigBtn;
 
     public MainView(FolderConfigRepository repo, FolderConfigEditor folderEditor, SystemConfigEditor systemEditor) {
-
+     
         this.repo = repo;
         this.editor = folderEditor;
         this.sysConfigEditor = systemEditor;
         this.grid = new Grid<>(FolderConfig.class);
         this.filter = new TextField();
-        this.addNewBtn = new Button("New Configuration", VaadinIcon.PLUS.create());
+        this.addNewBtn = new Button("New Import", VaadinIcon.PLUS.create());
         this.sysConfigBtn = new Button("System Configuration", VaadinIcon.COG.create());
         sysConfigBtn.addClickListener(e -> systemEditor.editConfig());
-
+        HorizontalLayout topLayout = new HorizontalLayout(new Label("SDE Import"));
         HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn, sysConfigBtn);
-        add(actions, grid, editor);
+       
+       add(topLayout, actions, grid, editor);
+      
 
         grid.setHeight("200px");
-        grid.setColumns("id", "directory", "tableName", "sdeDatabase", "sdePassword");
+        grid.setColumns("id", "sdeHost", "sdePort", "directory", "tableName", "sdeDatabase", "sdeUsername", "sdePassword");
         grid.getColumnByKey("id").setWidth("50px").setFlexGrow(0);
 
         filter.setPlaceholder("Filter by directory");
@@ -63,7 +66,7 @@ public class MainView extends VerticalLayout {
         });
 
         // Instantiate and edit new Customer the new button is clicked
-        addNewBtn.addClickListener(e -> editor.editConfig(new FolderConfig("", "", "", "")));
+        addNewBtn.addClickListener(e -> editor.editConfig(new FolderConfig("", "", "", "", "", "", "")));
 
         // Listen changes made by the editor, refresh data from backend
         editor.setChangeHandler(() -> {
