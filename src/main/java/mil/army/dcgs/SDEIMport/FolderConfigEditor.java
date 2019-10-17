@@ -19,6 +19,10 @@ import java.io.File;
 import java.nio.file.Paths;
 import javax.swing.plaf.basic.BasicMenuUI;
 import com.vaadin.flow.data.converter.Converter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,10 +35,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 @UIScope
 public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(FolderConfigEditor.class);
     private final FolderConfigRepository repo;
     
     private FolderConfig config;
-    
+    @Autowired
+    Importer importer;
     TextField directory = new TextField("directory");
     TextField sdeHost = new TextField("SDE Host");
     TextField sdePort = new TextField("SDE Port");
@@ -51,8 +57,6 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
     
     private ChangeHandler changeHandler;
-    @Autowired
-    Importer importer;
     
     @Autowired
     public FolderConfigEditor(FolderConfigRepository repository) {
@@ -118,7 +122,8 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     }
     
     void save() {
-        System.out.println("trying to save: " + config.toString());
+        try {
+            System.out.println("trying to save: " + config.toString());
 //        if (directory.isInvalid()) {
 //            System.out.println("*** directory is invalid");
 //            return;
@@ -126,13 +131,23 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
 //        String normalizedPath = config.getDirectory().replace("\\", "\\\\");
 //        System.out.println("normalized path: "+normalizedPath);
 //        config.setDirectory(normalizedPath);
-        repo.save(config);
-        
-        importer.insertIntoSDE(config);
-        changeHandler.onChange();
+//        try {
+//            importer.register(Paths.get(config.getDirectory()));
+//            importer.processEvents(config);
+//          
+//        } catch (IOException ex) {
+//            log.error("problem saving folder configuration: " + config.getDirectory() + " with error: " + ex);
+//        }
+            repo.save(config);
+            importer.register(config);
+            changeHandler.onChange();
+        } catch (IOException ex) {
+            Logger.getLogger(FolderConfigEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     void delete() {
+        importer.remove(config);
         repo.delete(config);
         changeHandler.onChange();
     }

@@ -1,21 +1,17 @@
 package mil.army.dcgs.SDEIMport;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.applayout.AppLayout;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -36,8 +32,9 @@ public class MainView extends VerticalLayout {
     private final Button addNewBtn;
     private final Button sysConfigBtn;
 
+    @Autowired
     public MainView(FolderConfigRepository repo, FolderConfigEditor folderEditor, SystemConfigEditor systemEditor) {
-     
+
         this.repo = repo;
         this.editor = folderEditor;
         this.sysConfigEditor = systemEditor;
@@ -48,9 +45,8 @@ public class MainView extends VerticalLayout {
         sysConfigBtn.addClickListener(e -> systemEditor.editConfig());
         HorizontalLayout topLayout = new HorizontalLayout(new Label("SDE Import"));
         HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn, sysConfigBtn);
-       
-       add(topLayout, actions, grid, editor);
-      
+
+        add(topLayout, actions, grid, editor);
 
         grid.setHeight("200px");
         grid.setColumns("id", "sdeHost", "sdePort", "directory", "tableName", "sdeDatabase", "sdeUsername", "sdePassword");
