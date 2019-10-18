@@ -48,7 +48,7 @@ public class Importer {
     private SystemConfigRepository sysRepo;
 
     public Importer(SystemConfigRepository systemRepo, FolderConfigRepository repo) throws IOException {
-        System.out.println("***Importer");
+;
         this.repo = repo;
         this.sysRepo = systemRepo;
         this.watcher = FileSystems.getDefault().newWatchService();
@@ -58,110 +58,45 @@ public class Importer {
             sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
         }
         this.pathToExe = sysRepo.findAll().get(0).getPathToExe();
-        // this.pathToExe = "C:\\sdeimport.exe";
-        //register(Paths.get(path));
+  
 
     }
 
-    public void test() {
-        System.out.println("*** test");
-    }
+   
 
     public void remove(FolderConfig config) {
-        System.out.println("size before removal: " + keys.size());
+       
 
         keys.forEach((k, v) -> {
             Path pathtoremove = Paths.get(config.getDirectory());
-            System.out.println("Path : " + Paths.get(v.getDirectory()));
-            System.out.println("path to remove : " + pathtoremove);
+          
             if (Paths.get(v.getDirectory()).equals(Paths.get(config.getDirectory()))) {
 
                 k.cancel();
-                // keys.remove(k, v);
+           
             }
 
         });
-        System.out.println("size after removal: " + keys.size());
+      
     }
 
     @Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
     public void loadRegisteredWatchers() {
-        System.out.println("***load registery on startup");
+      
         List<FolderConfig> folderConfigs = repo.findAll();
-        System.out.println("***there are :" + folderConfigs.size() + " folders registerd");
+   
         folderConfigs.forEach((FolderConfig c) -> {
             if(c.isEnabled())
             register(c);
 
         });
     }
-//    @Scheduled(fixedRate = 3000)
-//    protected void configurationPoller() {
-//        System.out.println("********************just ran scheduled");
-//        List<FolderConfig> folderConfigs = repo.findAll();
-//
-//    folderConfigs.forEach(c -> configs.put(key, c));
-//      
-//        configs.put(Paths.get(c.getDirectory()), c);
-//
-//    }
-//     @PostConstruct
-//    @Async
-//    public void watchFolders() {
-//        try {
-//            //         if (sysRepo.findAll().size() < 1) {
-////                sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
-////            }
-//            System.out.println("**** start watching folders");
-//            configs = repo.findAll();
-//            System.out.println(configs.size() + " configs found");
-//            WatchService watchService = FileSystems.getDefault().newWatchService();
-//
-//            configs.forEach(c -> {
-//                try {
-//                    System.out.println("*** config directory: " + c.getDirectory());
-//
-//                    Path path = Paths.get(c.getDirectory());
-//                    System.out.println("***register watch service for: " + path);
-//                    path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-//                    WatchKey key;
-////                if (Files.exists(Paths.get(c.getDirectory()))) {
-////                    return;
-////                }
-//
-//                    while ((key = watchService.take()) != null) {
-//                        for (WatchEvent<?> event : key.pollEvents()) {
-//                            System.out.println(
-//                                    "Event kind:" + event.kind()
-//                                    + ". File affected: " + event.context() + ".");
-//                            insertIntoSDE(c, event);
-//                        }
-//                    }
-//                } catch (IOException | InterruptedException ex) {
-//                    Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            });
-//        } catch (IOException ex) {
-//            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+
 
     @Async
     private void insertIntoSDE(FolderConfig c, String fileName) {
         try {
-            System.out.println("*** import into SDE");
-//            if(sysRepo.findAll().size()<1)return;
-
-            // WatchService watchService = FileSystems.getDefault().newWatchService();
-//            Path path = Paths.get(c.getDirectory());
-//            System.out.println("***register watch service for: " + path);
-//            path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-//            WatchKey key;
-//            while ((key = watchService.take()) != null) {
-//                for (WatchEvent<?> event : key.pollEvents()) {
-//                    System.out.println(
-//                            "Event kind:" + event.kind()
-//                            + ". File affected: " + event.context() + ".");
+          
             /**
              * sdeimport -o update_else_insert {-l <table,column> | -t
              * <table>} -K <key_columns> [-V <version_name>] -f
@@ -170,7 +105,6 @@ public class Importer {
              * <server_name>] [-D <database_name>] -u <DB_user_name>
              * [-p <DB_user_password>]
              */
-//                    fileQueue.add(event.context());
             Path fp = Paths.get(c.getDirectory().concat("/").concat(fileName));
             List<String> commands = new ArrayList<>();
             commands.add(pathToExe);
@@ -197,57 +131,30 @@ public class Importer {
                 commands.add(c.getKeyFields());
             }
             ProcessBuilder pb = new ProcessBuilder(commands);
-            System.out.println("*** command: " + commands.toString().replace(",", " "));
+          
             pb.redirectErrorStream(true);
             final Process p = pb.start();
 
             final int exitcode = p.waitFor();
             assert exitcode == 0;
             Files.delete(fp);
-            //}
-//            }
-//
-//            key.reset();
+   
         } catch (IOException ex) {
-            System.out.println("*** error in importer: " + ex);
+         
             Logger.getLogger(Importer.class
                     .getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-//    public void insertIntoSDE(){
-//     try {
-//            WatchService watchService = FileSystems.getDefault().newWatchService();
-//            Path path = Paths.get(writeFile("test"));
-//            path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
-//            WatchKey key;
-//            while ((key = watchService.take()) != null) {
-//                for (WatchEvent<?> event : key.pollEvents()) {
-//                    System.out.println(
-//                            "Event kind:" + event.kind()
-//                            + ". File affected: " + event.context() + ".");
-//                    if (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
-//                        System.out.println("new file created");
-//                        callSDEImport("stuff");
-//                        
-//                    }
-//                }
-//                key.reset();
-//            }
-//        } catch (IOException ex) {
-//            Logger.getLogger(SDEImport.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(SDEImport.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+
 
     @Async
     public void register(FolderConfig config) {
         try {
-            System.out.println("*** register before directory");
+        
             Path dir = Paths.get(config.getDirectory());
-            System.out.println("*** register: " + dir);
+        
             // HashSet<String> files = Stream.of(new File(dir).listFiles())
             Set<String> files = Stream.of(new File(dir.toString()).listFiles())
                     .filter(file -> !file.isDirectory())
@@ -272,7 +179,7 @@ public class Importer {
             keys.put(key, config);
             processEvents();
         } catch (IOException ex) {
-            System.out.println("exception trying to register: " + ex);
+        
             Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -283,7 +190,7 @@ public class Importer {
     @Async
     void processEvents() {
         for (;;) {
-            System.out.println("*** process events");
+            
             // wait for key to be signalled
             WatchKey key;
             try {
@@ -295,9 +202,9 @@ public class Importer {
 
             FolderConfig config = keys.get(key);
             Path dir = Paths.get(config.getDirectory());
-            System.out.println("process events for path: " + dir);
+          
             if (dir == null) {
-                System.err.println("WatchKey not recognized!!");
+               
                 continue;
             }
 

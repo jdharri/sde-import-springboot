@@ -4,25 +4,14 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.binder.Validator;
-
-import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import java.io.File;
-import java.nio.file.Paths;
-import javax.swing.plaf.basic.BasicMenuUI;
-import com.vaadin.flow.data.converter.Converter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,18 +52,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     @Autowired
     public FolderConfigEditor(FolderConfigRepository repository) {
         this.repo = repository;
-//        Converter filePathConverter = new Converter() {
-//            @Override
-//            public Result convertToModel(Object value, ValueContext context) {
-//             return Paths.get(value.toString()).normalize();
-//            }
-//
-//            @Override
-//            public Object convertToPresentation(Object value, ValueContext context) {
-//                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//            }
-//        }
-//                .withValidator((t) -> validateFilePath(t), "not a valid path");
+
         sdeHost.setRequired(true);
         sdePort.setRequired(true);
         directory.setRequired(true);
@@ -84,14 +62,8 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         tableName.setRequired(true);
 
         add(enabled, sdeHost, sdePort, directory, sdeUsername, sdePassword, sdeDatabase, tableName, actions);
-//        binder.forField(directory)
-//                //                .withValidator(pathValidator)
-//                .withValidator(v -> validateFilePath(v), "not a valid file path")
-//                
-//                .bind(FolderConfig::getDirectory, FolderConfig::setDirectory);
-        binder.bindInstanceFields(this);
 
-//        directory.setRequired(true);
+        binder.bindInstanceFields(this);
         setSpacing(true);
         save.getElement().getThemeList().add("primary");
         delete.getElement().getThemeList().add("error");
@@ -105,41 +77,26 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
 
     }
 
-    private String normalizePath(String p) {
-        File path = new File(p);
-        return path.getAbsolutePath();
-    }
-
+ 
+/**
+ * @TODO
+ * @param path
+ * @return 
+ */
     private boolean isValidFilePath(String path) {
-        System.out.println("*** validator");
-        System.out.println("*** path: " + path);
+     
         File folder = new File(path);
         if (!folder.exists()) {
-            System.out.println("NOT VALID");
+           
             return false;
         }
 
-        System.out.println("VALID");
+       
         return true;
     }
 
     void save() {
-        // try {
-        System.out.println("*** trying to save: " + config.toString());
-//        if (directory.isInvalid()) {
-//            System.out.println("*** directory is invalid");
-//            return;
-//        }
-//        String normalizedPath = config.getDirectory().replace("\\", "\\\\");
-//        System.out.println("normalized path: "+normalizedPath);
-//        config.setDirectory(normalizedPath);
-//        try {
-//            importer.register(Paths.get(config.getDirectory()));
-//            importer.processEvents(config);
-//          
-//        } catch (IOException ex) {
-//            log.error("problem saving folder configuration: " + config.getDirectory() + " with error: " + ex);
-//        }
+
         repo.save(config);
         if (!config.isEnabled()) {
             importer.remove(config);
@@ -148,11 +105,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         }
 
         changeHandler.onChange();
-//        } catch (IOException ex) {
-//            System.out.println("exception trying to register: "+ex);
-//            ex.printStackTrace();
-//           log.error("Problem saving and regisering config: "+ex);
-//        }
+
     }
 
     void delete() {
@@ -172,7 +125,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
             return;
         }
         final boolean persisted = c.getId() != null;
-        System.out.println("*** persisted: " + persisted);
+  
         if (persisted) {
 
             config = repo.findById(c.getId()).get();
@@ -181,9 +134,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         }
 
         cancel.setVisible(persisted);
-//        String normalizedPath = config.getDirectory().replace("\\", "\\\\");
-//        System.out.println("normalized path: " + normalizedPath);
-//        config.setDirectory(normalizedPath);
+   
         binder.setBean(config);
         setVisible(true);
         sdeHost.focus();

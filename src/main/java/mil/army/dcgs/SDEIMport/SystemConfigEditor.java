@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mil.army.dcgs.SDEIMport;
 
 import com.vaadin.flow.component.Key;
@@ -41,14 +36,12 @@ public class SystemConfigEditor extends VerticalLayout implements KeyNotifier {
     @Autowired
     public SystemConfigEditor(SystemConfigRepository repo) {
         this.dialog = new Dialog();
-        
+
         this.repo = repo;
         binder.bindInstanceFields(this);
         pathToExe.setLabel("path to sdeimport.exe");
         addKeyPressListener(Key.ENTER, e -> save());
-        // sdeImportExePath.setValue(config.getPathToExe());
-//        Button saveSdeLocationButton = new Button("Save", VaadinIcon.DISC.create());
-//        saveSdeLocationButton.addClickListener(e ->)
+
         VerticalLayout dialogContents = new VerticalLayout(pathToExe, actions);
         dialog.add(dialogContents);
 
@@ -59,9 +52,8 @@ public class SystemConfigEditor extends VerticalLayout implements KeyNotifier {
     }
 
     void save() {
-      
+
         repo.save(config);
-//        changeHandler.onChange();
         this.dialog.close();
     }
 
@@ -74,7 +66,7 @@ public class SystemConfigEditor extends VerticalLayout implements KeyNotifier {
         List<SystemConfig> currentConfigs = repo.findAll();
         SystemConfig currentConfig = currentConfigs.get(0);
         config = currentConfig;
-//        pathToExe.setValue(config.getPathToExe());
+
         binder.setBean(config);
         dialog.open();
 
