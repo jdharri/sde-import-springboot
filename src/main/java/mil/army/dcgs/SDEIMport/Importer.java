@@ -1,5 +1,6 @@
 package mil.army.dcgs.SDEIMport;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -13,10 +14,15 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.PostConstruct;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -57,19 +63,38 @@ public class Importer {
 
     }
 
+    public void test() {
+        System.out.println("*** test");
+    }
+
     public void remove(FolderConfig config) {
         System.out.println("size before removal: " + keys.size());
 
         keys.forEach((k, v) -> {
-            if (v.equals(Paths.get(config.getDirectory()))) {
+            Path pathtoremove = Paths.get(config.getDirectory());
+            System.out.println("Path : " + Paths.get(v.getDirectory()));
+            System.out.println("path to remove : " + pathtoremove);
+            if (Paths.get(v.getDirectory()).equals(Paths.get(config.getDirectory()))) {
+
                 k.cancel();
-                keys.remove(k);
+                // keys.remove(k, v);
             }
 
         });
         System.out.println("size after removal: " + keys.size());
     }
 
+    @Scheduled(initialDelay = 1000 * 30, fixedDelay = Long.MAX_VALUE)
+    public void loadRegisteredWatchers() {
+        System.out.println("***load registery on startup");
+        List<FolderConfig> folderConfigs = repo.findAll();
+        System.out.println("***there are :" + folderConfigs.size() + " folders registerd");
+        folderConfigs.forEach((FolderConfig c) -> {
+            if(c.isEnabled())
+            register(c);
+
+        });
+    }
 //    @Scheduled(fixedRate = 3000)
 //    protected void configurationPoller() {
 //        System.out.println("********************just ran scheduled");
@@ -120,9 +145,11 @@ public class Importer {
 //            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
+
     @Async
-    private void insertIntoSDE(FolderConfig c, WatchEvent event) {
+    private void insertIntoSDE(FolderConfig c, String fileName) {
         try {
+            System.out.println("*** import into SDE");
 //            if(sysRepo.findAll().size()<1)return;
 
             // WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -144,7 +171,7 @@ public class Importer {
              * [-p <DB_user_password>]
              */
 //                    fileQueue.add(event.context());
-            Path fp = Paths.get(c.getDirectory().concat("/").concat(event.context().toString()));
+            Path fp = Paths.get(c.getDirectory().concat("/").concat(fileName));
             List<String> commands = new ArrayList<>();
             commands.add(pathToExe);
             commands.add("/c");
@@ -216,36 +243,53 @@ public class Importer {
 //    }
 
     @Async
-    public void register(FolderConfig config) throws IOException {
-        Path dir = Paths.get(config.getDirectory());
-        System.out.println("*** register: " + dir);
-        WatchKey key = dir.register(watcher, ENTRY_CREATE);
+    public void register(FolderConfig config) {
+        try {
+            System.out.println("*** register before directory");
+            Path dir = Paths.get(config.getDirectory());
+            System.out.println("*** register: " + dir);
+            // HashSet<String> files = Stream.of(new File(dir).listFiles())
+            Set<String> files = Stream.of(new File(dir.toString()).listFiles())
+                    .filter(file -> !file.isDirectory())
+                    .map(File::getName)
+                    .collect(Collectors.toSet());
+            if (files.size() > 0) {
+                files.forEach(f -> insertIntoSDE(config, f));
 
-        if (trace) {
-            FolderConfig prev = keys.get(key);
-            if (prev == null) {
-                System.out.format("register: %s\n", dir);
-            } else {
-                if (!dir.equals(prev)) {
-                    System.out.format("update: %s -> %s\n", prev, dir);
+            }
+            WatchKey key = dir.register(watcher, ENTRY_CREATE);
+
+            if (trace) {
+                FolderConfig prev = keys.get(key);
+                if (prev == null) {
+                    System.out.format("register: %s\n", dir);
+                } else {
+                    if (!dir.equals(prev)) {
+                        System.out.format("update: %s -> %s\n", prev, dir);
+                    }
                 }
             }
+            keys.put(key, config);
+            processEvents();
+        } catch (IOException ex) {
+            System.out.println("exception trying to register: " + ex);
+            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        keys.put(key, config);
-        processEvents();
     }
 
     /**
      * Process all events for keys queued to the watcher
      */
+    @Async
     void processEvents() {
         for (;;) {
-
+            System.out.println("*** process events");
             // wait for key to be signalled
             WatchKey key;
             try {
                 key = watcher.take();
             } catch (InterruptedException x) {
+                log.error("interrupted exception: " + x);
                 return;
             }
 
@@ -265,7 +309,7 @@ public class Importer {
                     continue;
                 }
                 if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-                    insertIntoSDE(config, event);
+                    insertIntoSDE(config, event.context().toString());
                 }
 
             }

@@ -3,6 +3,7 @@ package mil.army.dcgs.SDEIMport;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyNotifier;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -34,30 +35,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SpringComponent
 @UIScope
 public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
-    
+
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(FolderConfigEditor.class);
     private final FolderConfigRepository repo;
-    
+
     private FolderConfig config;
     @Autowired
-    Importer importer;
-    TextField directory = new TextField("directory");
-    TextField sdeHost = new TextField("SDE Host");
-    TextField sdePort = new TextField("SDE Port");
-    TextField sdePassword = new TextField("SDE Password");
-    TextField sdeUsername = new TextField("SDE Username");
-    TextField sdeDatabase = new TextField("SDE Database");
-    TextField tableName = new TextField("table name");
-    
-    Button save = new Button("Save", VaadinIcon.CHECK.create());
-    Button cancel = new Button("Cancel");
-    Button delete = new Button("Delete", VaadinIcon.TRASH.create());
-    HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
-    
-    Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
-    
+    private Importer importer;
+    private TextField directory = new TextField("directory");
+    private TextField sdeHost = new TextField("SDE Host");
+    private TextField sdePort = new TextField("SDE Port");
+    private TextField sdePassword = new TextField("SDE Password");
+    private TextField sdeUsername = new TextField("SDE Username");
+    private TextField sdeDatabase = new TextField("SDE Database");
+    private TextField tableName = new TextField("table name");
+    private Checkbox enabled = new Checkbox("enabled");
+
+    private Button save = new Button("Save", VaadinIcon.CHECK.create());
+    private Button cancel = new Button("Cancel");
+    private Button delete = new Button("Delete", VaadinIcon.TRASH.create());
+    private HorizontalLayout actions = new HorizontalLayout(save, cancel, delete);
+
+    private Binder<FolderConfig> binder = new Binder<>(FolderConfig.class);
+
     private ChangeHandler changeHandler;
-    
+
     @Autowired
     public FolderConfigEditor(FolderConfigRepository repository) {
         this.repo = repository;
@@ -80,8 +82,8 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         sdePassword.setRequired(true);
         sdeDatabase.setRequired(true);
         tableName.setRequired(true);
-        
-        add(sdeHost, sdePort, directory, sdeUsername, sdePassword, sdeDatabase, tableName, actions);
+
+        add(enabled, sdeHost, sdePort, directory, sdeUsername, sdePassword, sdeDatabase, tableName, actions);
 //        binder.forField(directory)
 //                //                .withValidator(pathValidator)
 //                .withValidator(v -> validateFilePath(v), "not a valid file path")
@@ -93,21 +95,21 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         setSpacing(true);
         save.getElement().getThemeList().add("primary");
         delete.getElement().getThemeList().add("error");
-        
+
         addKeyPressListener(Key.ENTER, e -> save());
-        
+
         save.addClickListener(e -> save());
         delete.addClickListener(e -> delete());
         cancel.addClickListener(e -> editConfig(config));
         setVisible(false);
-        
+
     }
-    
+
     private String normalizePath(String p) {
         File path = new File(p);
         return path.getAbsolutePath();
     }
-    
+
     private boolean isValidFilePath(String path) {
         System.out.println("*** validator");
         System.out.println("*** path: " + path);
@@ -116,14 +118,14 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
             System.out.println("NOT VALID");
             return false;
         }
-        
+
         System.out.println("VALID");
         return true;
     }
-    
+
     void save() {
-        try {
-            System.out.println("trying to save: " + config.toString());
+        // try {
+        System.out.println("*** trying to save: " + config.toString());
 //        if (directory.isInvalid()) {
 //            System.out.println("*** directory is invalid");
 //            return;
@@ -138,25 +140,32 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
 //        } catch (IOException ex) {
 //            log.error("problem saving folder configuration: " + config.getDirectory() + " with error: " + ex);
 //        }
-            repo.save(config);
+        repo.save(config);
+        if (!config.isEnabled()) {
+            importer.remove(config);
+        } else {
             importer.register(config);
-            changeHandler.onChange();
-        } catch (IOException ex) {
-            Logger.getLogger(FolderConfigEditor.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        changeHandler.onChange();
+//        } catch (IOException ex) {
+//            System.out.println("exception trying to register: "+ex);
+//            ex.printStackTrace();
+//           log.error("Problem saving and regisering config: "+ex);
+//        }
     }
-    
+
     void delete() {
         importer.remove(config);
         repo.delete(config);
         changeHandler.onChange();
     }
-    
+
     public interface ChangeHandler {
-        
+
         void onChange();
     }
-    
+
     public final void editConfig(FolderConfig c) {
         if (c == null) {
             setVisible(false);
@@ -165,12 +174,12 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         final boolean persisted = c.getId() != null;
         System.out.println("*** persisted: " + persisted);
         if (persisted) {
-            
+
             config = repo.findById(c.getId()).get();
         } else {
             config = c;
         }
-        
+
         cancel.setVisible(persisted);
 //        String normalizedPath = config.getDirectory().replace("\\", "\\\\");
 //        System.out.println("normalized path: " + normalizedPath);
@@ -179,7 +188,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         setVisible(true);
         sdeHost.focus();
     }
-    
+
     public void setChangeHandler(ChangeHandler h) {
         changeHandler = h;
     }

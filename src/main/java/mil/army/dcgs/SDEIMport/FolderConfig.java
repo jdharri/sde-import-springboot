@@ -27,6 +27,7 @@ public class FolderConfig {
    private String sdePort;
    private String sdeUsername;
    private String tableName;
+   private boolean enabled = false;
 //       public String CGWIN = "cgwyn";
 //    public String DELETE_FILES = "deleteFiles";
 //    public String DRIVER_SDE = "driverSDE";
@@ -47,7 +48,8 @@ public class FolderConfig {
 //    public String USER_SDE = "userSDE";
 //   private String dbTable;
 
-    public FolderConfig(String directory, String sdePassword, String sdeDatabase, String sdeHost, String sdePort, String sdeUsername, String tableName) {
+    public FolderConfig(boolean enabled, String directory, String sdePassword, String sdeDatabase, String sdeHost, String sdePort, String sdeUsername, String tableName) {
+        this.enabled = enabled;
         this.directory = directory;
         this.sdePassword = sdePassword;
         this.sdeDatabase = sdeDatabase;
@@ -64,6 +66,14 @@ public class FolderConfig {
 
     public Long getId() {
         return id;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public void setId(Long id) {
