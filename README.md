@@ -14,7 +14,7 @@ I created a directory on my desktop called "windowsservice" In that directory I 
 I then create an xml file named after the project "sde-import.xml"
 
 The XML looks like:
-
+<code>
   <service>
     <id>sde-import</id>
     <name>sde-import</name>
@@ -23,6 +23,7 @@ The XML looks like:
     <arguments> -jar "sde-import.jar"</arguments>
     <logmode>rotate</logmode>
 </service>
+</code>
 
 then I drop the built jar file in there and make sure its named the same "sde-import.exe"
 
