@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  *
- * @author joel
+ * @author Joel Harris
  */
 public interface SystemConfigRepository extends JpaRepository<SystemConfig, Long>{
     

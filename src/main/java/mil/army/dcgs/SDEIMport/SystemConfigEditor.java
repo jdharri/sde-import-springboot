@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
- * @author joel
+ * @author Joel Harris
  */
 @SpringComponent
 @UIScope

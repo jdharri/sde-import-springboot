@@ -8,7 +8,7 @@ import javax.persistence.Id;
 
 /**
  *
- * @author joel
+ * @author Joel Harris
  */
 @Entity
 public class SystemConfig implements Serializable {

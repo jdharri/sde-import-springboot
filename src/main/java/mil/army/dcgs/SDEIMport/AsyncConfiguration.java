@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package mil.army.dcgs.SDEIMport;
 
 import java.util.concurrent.Executor;
@@ -16,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  *
- * @author jdhar
+ * @author Joel Harris
  */
 @Configuration
 @EnableAsync
