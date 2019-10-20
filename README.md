@@ -8,7 +8,7 @@ then run  mvn com.github.eirslett:frontend-maven-plugin:1.7.6:install-node-and-n
 for deploy:
 the embeded H2 is expecting a directory C:\sdeimport so make it if it doesn't exist
 
-I'm using winsw to package as a windows service. To re-create it, you download the binary.exe and create a xml file in a directory of your choice.
+I'm using winsw https://github.com/kohsuke/winsw to package as a windows service. To re-create it, you download the binary.exe and create a xml file in a directory of your choice.
 
 I created a directory on my desktop called "windowsservice" In that directory I place the winsw.exe file, and renamed it to match my project name "sde-import.exe"
 I then create an xml file named after the project "sde-import.xml"
