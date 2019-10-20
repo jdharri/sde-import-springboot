@@ -14,8 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class SdeiMportApplication {
 
     private static final Logger log = LoggerFactory.getLogger(SdeiMportApplication.class);
-    @Autowired
-    private Importer importer;
+  
 
     public static void main(String[] args) {
         SpringApplication.run(SdeiMportApplication.class, args);
@@ -24,22 +23,13 @@ public class SdeiMportApplication {
     @Bean
     public CommandLineRunner loadData(FolderConfigRepository repo, SystemConfigRepository sysRepo, Importer importer) {
         return (args) -> {
-//            
-            this.importer = importer;
-           // repo.save(new FolderConfig("C:\\testdir", "sdePassword", "sdeDatabase", "123.456.789", "3306", "sdeuser", "tableName2"));
-//            repo.save(new FolderConfig("C:\\testdir2", "sdePassword2", "sdeDatabase2","123.456.789",   "3306", "sdeuser","tableName2"));
-
+      
             if (sysRepo.findAll().size() < 1) {
                 sysRepo.save(new SystemConfig("C:\\sdeimport.exe"));
             }
-//            this.importer.loadRegisteredWatchers();
+
         };
     }
 
-//        @PostConstruct
-//        private void init(){
-//            System.out.println("**** init()");
-//            Importer importer = new Importer();
-//            importer.watchFolders();
-//        }
+
 }
