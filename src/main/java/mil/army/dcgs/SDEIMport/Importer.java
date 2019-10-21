@@ -122,11 +122,12 @@ public class Importer {
             commands.add("-p");
             commands.add(c.getSdePassword());
             commands.add("-i");
-            commands.add(c.getSdePort());
+            commands.add("'"+c.getSdePort()+"'");
             if (null != c.getKeyFields()) {
                 commands.add("-K");
                 commands.add(c.getKeyFields());
             }
+            System.out.println(commands.toString().replace(",", " "));
             ProcessBuilder pb = new ProcessBuilder(commands);
           
             pb.redirectErrorStream(true);

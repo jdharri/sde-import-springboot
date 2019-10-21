@@ -38,6 +38,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
     private TextField sdeUsername = new TextField("SDE Username");
     private TextField sdeDatabase = new TextField("SDE Database");
     private TextField tableName = new TextField("table name");
+    private TextField keyFields = new TextField("key fields");
     private Checkbox enabled = new Checkbox("enabled");
 
     private Button save = new Button("Save", VaadinIcon.CHECK.create());
@@ -61,7 +62,7 @@ public class FolderConfigEditor extends VerticalLayout implements KeyNotifier {
         sdeDatabase.setRequired(true);
         tableName.setRequired(true);
 
-        add(enabled, sdeHost, sdePort, directory, sdeUsername, sdePassword, sdeDatabase, tableName, actions);
+        add(enabled, sdeHost, sdePort, directory, keyFields, sdeUsername, sdePassword, sdeDatabase, tableName, actions);
 
         binder.bindInstanceFields(this);
         setSpacing(true);

@@ -49,7 +49,7 @@ public class MainView extends VerticalLayout {
         add(topLayout, actions, grid, editor);
 
         grid.setHeight("200px");
-        grid.setColumns("id", "enabled", "sdeHost", "sdePort", "directory", "tableName", "sdeDatabase", "sdeUsername", "sdePassword");
+        grid.setColumns("id", "enabled", "sdeHost", "sdePort", "directory","keyFields", "tableName", "sdeDatabase", "sdeUsername", "sdePassword");
         grid.getColumnByKey("id").setWidth("50px").setFlexGrow(0);
 
         filter.setPlaceholder("Filter by directory");
@@ -62,7 +62,7 @@ public class MainView extends VerticalLayout {
         });
 
         // Instantiate and edit new Customer the new button is clicked
-        addNewBtn.addClickListener(e -> editor.editConfig(new FolderConfig(false,"", "", "", "", "", "", "")));
+        addNewBtn.addClickListener(e -> editor.editConfig(new FolderConfig(false,"", "","", "", "", "", "", "")));
 
         // Listen changes made by the editor, refresh data from backend
         editor.setChangeHandler(() -> {

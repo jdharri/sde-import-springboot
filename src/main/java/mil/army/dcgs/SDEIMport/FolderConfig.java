@@ -48,7 +48,7 @@ public class FolderConfig {
 //    public String USER_SDE = "userSDE";
 //   private String dbTable;
 
-    public FolderConfig(boolean enabled, String directory, String sdePassword, String sdeDatabase, String sdeHost, String sdePort, String sdeUsername, String tableName) {
+    public FolderConfig(boolean enabled, String directory, String sdePassword, String sdeDatabase, String sdeHost, String sdePort, String sdeUsername, String tableName, String keyField) {
         this.enabled = enabled;
         this.directory = directory;
         this.sdePassword = sdePassword;
@@ -57,6 +57,7 @@ public class FolderConfig {
         this.sdePort = sdePort;
         this.sdeUsername = sdeUsername;
         this.tableName = tableName;
+        this.keyFields = keyField;
     }
 
    

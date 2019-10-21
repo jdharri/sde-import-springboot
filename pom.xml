@@ -87,6 +87,10 @@
                     <groupId>com.vaadin</groupId>
                     <artifactId>flow-server-production-mode</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>flow-server-compatibility-mode</artifactId>
+                </dependency>
             </dependencies>
             <build>
                 <plugins>
@@ -105,6 +109,7 @@
                         <executions>
                             <execution>
                                 <goals>
+                                     <goal>copy-production-files</goal>
                                     <goal>prepare-frontend</goal>
                                     <goal>build-frontend</goal>
                                     <goal>package-for-production</goal>
